@@ -1,0 +1,86 @@
+// BDSQLEXPRESS.cpp : Este archivo contiene la función "main". La ejecución del programa comienza y termina ahí.
+//
+#include<windows.h>
+#include<sql.h>
+#include<sqlext.h>
+#include<iostream>
+
+using namespace std;
+
+int main() {
+	SQLHENV hEnv;
+	SQLHDBC hDbc;
+	SQLRETURN ret;
+
+	// Allocate an environment handle
+	ret = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &hEnv);
+	ret = SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, 0);
+
+	// Allocate a connection handle
+	ret = SQLAllocHandle(SQL_HANDLE_DBC, hEnv, &hDbc);
+
+	// connect to the database
+	ret = SQLConnect(hDbc, (SQLWCHAR*)L"sqlexpress", SQL_NTS, (SQLWCHAR*)L"username", SQL_NTS, (SQLWCHAR*)L"Password", SQL_NTS);
+
+	if (ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO) {
+		cout << "Connected to database seccessfully." << endl;
+	
+		 // Example of executing a query
+		SQLHSTMT hStmt;
+		ret = SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt);
+
+		 // Example SELECT query
+		ret = SQLExecDirect(hStmt, (SQLWCHAR*)L" SELECT * FROM Datos_empleados", SQL_NTS);
+		if (ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO) {
+			SQLCHAR Nombre[50];
+			SQLCHAR Apellido_paterno[40];
+			SQLCHAR Apellido_materno[40];
+			SQLCHAR Fecha_de_naciemiento[40];
+			SQLCHAR RFC[15];
+			SQLCHAR Centro_trabajo[40];
+			SQLCHAR Puesto[15];
+			SQLCHAR Descripcion_del_puesto[40];
+			// int age;
+			cout << "+--------------------------------------------------------------------------------------------------------------+" << endl;
+			cout << "|Nombre: | apellido paterno :  | apellido materno: | fecha:  | RFC: | Centro: | Puesto: | Descripcion de puesto:" << endl;
+			cout << "+--------------------------------------------------------------------------------------------------------------+" << endl;   
+			cout << "|        |                     |                   |         |      |         |         |                       " << endl;
+			cout << "|        |                     |                   |         |      |         |         |                       " << endl;
+			cout << "|        |                     |                   |         |      |         |         |                       " << endl;
+			cout << "+--------------------------------------------------------------------------------------------------------------+" << endl;
+
+				
+	
+			while (SQLFetch(hStmt) == SQL_SUCCESS) {
+				SQLGetData(hStmt, 2 , SQL_C_CHAR, Nombre, sizeof(Nombre), NULL);
+			
+
+				//SQLGetData(hStmt, 2 , SQL_C_LONG,&age, 0, NULL);
+
+				cout <<Nombre<<endl;
+
+
+
+
+
+
+			}
+		}
+
+		// Free statement handle
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+
+	}
+	else {
+		cout << "Failed to connect to database." << endl;
+
+	}
+	// Disconnect and free handles
+	SQLDisconnect(hDbc);
+	SQLFreeHandle(SQL_HANDLE_DBC, hDbc);
+	SQLFreeHandle(SQL_HANDLE_ENV, hEnv);
+
+	return 0;
+
+
+}
